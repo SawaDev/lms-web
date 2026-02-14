@@ -1,8 +1,6 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Assignment, downloadFile } from "../api/student";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea"; // Need to check if I have this
-import { ScrollView } from "@/components/ui/scroll-area";
 import {
   X,
   CheckCircle2,
@@ -10,17 +8,14 @@ import {
   File,
   Send,
   Download,
-  Eye,
   Maximize2,
   Loader2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
 } from "@/components/ui/sheet";
 
 interface AssignmentDetailSheetProps {

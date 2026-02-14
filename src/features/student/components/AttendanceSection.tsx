@@ -1,6 +1,6 @@
 import React from "react";
 import { Calendar, Check, X } from "lucide-react";
-import { AttendanceItem } from "../../api/student";
+import { AttendanceItem } from "../api/student";
 import { cn } from "@/lib/utils";
 
 interface AttendanceSectionProps {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAssignments, useSubmitAssignment } from "../hooks/useStudent";
 import { Assignment, getUploadUrl, uploadFileToS3 } from "../api/student";
 import { Card, CardContent } from "@/components/ui/card";
