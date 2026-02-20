@@ -10,6 +10,15 @@ import { Sheet } from "@/components/ui/sheet";
 import { AssignmentDetailSheet } from "../components/AssignmentDetailSheet";
 import { toast } from "sonner";
 
+/** Format date as DD.MM.YYYY for due date display */
+const formatDueDate = (date: Date | string): string => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
 export const AssignmentsPage = () => {
   const { data: assignments, isLoading, error } = useAssignments();
   const { data: profile } = useProfile();
@@ -165,7 +174,7 @@ export const AssignmentsPage = () => {
                   </div>
                   <div className="flex items-center text-slate-400 text-xs font-bold">
                     <Calendar size={14} className="mr-1" />
-                    {new Date(assignment.due_date).toLocaleDateString()}
+                    Due: {formatDueDate(assignment.due_date)}
                   </div>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">

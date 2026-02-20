@@ -40,8 +40,8 @@ export const LoginPage = () => {
 
   const onSubmit = (data: LoginFormValues) => {
     const cleaned = cleanPhoneNumber(data.phone);
-    // Add prefix if missing
-    const finalPhone = cleaned.length === 9 ? `998${cleaned}` : cleaned;
+    // Ensure it starts with 998
+    const finalPhone = cleaned.startsWith("998") ? cleaned : `998${cleaned}`;
     
     login({
       phone: finalPhone,
@@ -66,29 +66,34 @@ export const LoginPage = () => {
               <Controller
                 control={control}
                 name="phone"
-                render={({ field: { onChange, value, ...field } }) => (
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium z-10">
-                      +998
-                    </span>
+                render={({ field: { onChange, value, ...field } }) => {
+                  // Extract digits from value (remove +998 prefix if present)
+                  const digits = cleanPhoneNumber(value).replace(/^998/, "");
+                  const formatted = digits ? `+998 ${formatPhoneNumber(digits)}` : "+998 ";
+                  
+                  return (
                     <Input
                       {...field}
                       id="phone"
-                      placeholder="(xx) xxx-xx-xx"
-                      value={formatPhoneNumber(value)}
+                      placeholder="+998 (xx) xxx-xx-xx"
+                      value={formatted}
                       onChange={(e) => {
                         const rawValue = e.target.value;
-                        // Keep only numbers
+                        // Remove everything except digits
                         const numbers = rawValue.replace(/\D/g, "");
-                        // Limit to 9 digits (excluding prefix)
-                        const truncated = numbers.slice(0, 9);
-                        onChange(truncated);
+                        // If starts with 998, remove it (we'll add it back)
+                        const withoutPrefix = numbers.startsWith("998") 
+                          ? numbers.slice(3) 
+                          : numbers;
+                        // Limit to 9 digits (local number)
+                        const truncated = withoutPrefix.slice(0, 9);
+                        // Store with 998 prefix
+                        onChange(truncated ? `998${truncated}` : "");
                       }}
-                      className={`pl-14 ${errors.phone ? "border-red-500" : ""}`}
-                      maxLength={14} // (xx) xxx-xx-xx is 14 chars
+                      className={errors.phone ? "border-red-500" : ""}
                     />
-                  </div>
-                )}
+                  );
+                }}
               />
               {errors.phone && (
                 <p className="text-red-500 text-xs">{errors.phone.message}</p>

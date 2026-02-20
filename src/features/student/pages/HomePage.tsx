@@ -1,12 +1,37 @@
 import { useProfile } from "../hooks/useStudent";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GraduationCap, ExternalLink, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const VROOM_APP_URL = (import.meta as any).env?.VITE_VROOM_APP_URL || "http://localhost:5173";
+
+function getTimeBasedGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+const COURSES_URL = 'https://myenglishuz.perfectlyspoken.team/app/courses';
+
 export const HomePage = () => {
   const { data: profile, isLoading, error } = useProfile();
+  const user = useAuthStore((s) => s.user);
+
+  const handleOpenVideoLessons = () => {
+    if (true) {
+      window.open(COURSES_URL, "_blank", "noopener,noreferrer");
+    }
+
+    const params = new URLSearchParams();
+    if (user?.id != null) params.set("userId", String(user.id));
+    if (user?.full_name) params.set("displayName", user.full_name);
+    const url = `${VROOM_APP_URL}/join${params.toString() ? `?${params.toString()}` : ""}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 
   if (isLoading) {
     return (
@@ -37,45 +62,53 @@ export const HomePage = () => {
           </AvatarFallback>
         </Avatar>
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-slate-900">Hello, {profile.full_name.split(' ')[0]}!</h1>
-          <div className="flex flex-wrap gap-2">
-            <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-sm font-bold">
-              {profile.level}
-            </span>
-            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-bold">
-              {profile.group_name}
-            </span>
-          </div>
+          <h1 className="text-3xl font-bold text-slate-900">{getTimeBasedGreeting()}, {profile.full_name}!</h1>
+          {!profile.group_name ? (
+            <span className="text-sm font-medium text-slate-500">No level assigned</span>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {profile.level && (
+                <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-sm font-bold">
+                  {profile.level}
+                </span>
+              )}
+              <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-bold">
+                {profile.group_name}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Access Status */}
       <Card className={cn(
         "border-none shadow-sm",
-        profile.status === "Active" ? "bg-green-50" : "bg-red-50"
+        profile.status === "Active" ? "bg-green-50" : profile.status === "New" ? "bg-yellow-50" : "bg-red-50"
       )}>
         <CardContent className="p-6 flex items-center justify-between">
           <div>
             <p className={cn(
               "font-bold",
-              profile.status === "Active" ? "text-green-800" : "text-red-800"
+              profile.status === "Active" ? "text-green-800" : profile.status === "New" ? "text-yellow-800" : "text-red-800"
             )}>
-              {profile.status === "Active" ? "Account Active" : "Account Blocked"}
+              {profile.status === "Active" ? "Account Active" : profile.status === "New" ? "Account New" : "Account Blocked"}
             </p>
-            <p className={cn(
-              "text-sm opacity-80",
-              profile.status === "Active" ? "text-green-700" : "text-red-700"
-            )}>
-              {profile.payment_expiry ? `Expires on ${new Date(profile.payment_expiry).toLocaleDateString()}` : "No expiry set"}
-            </p>
+            {!!profile.payment_expiry && (
+              <p className={cn(
+                "text-sm opacity-80",
+                profile.status === "Active" ? "text-green-700" : profile.status === "New" ? "text-yellow-700" : "text-red-700"
+              )}>
+                Expires on {new Date(profile.payment_expiry).toLocaleDateString()}
+              </p>
+            )}
           </div>
           <div className={cn(
             "p-3 rounded-2xl",
-            profile.status === "Active" ? "bg-green-100" : "bg-red-100"
+            profile.status === "Active" ? "bg-green-100" : profile.status === "New" ? "bg-yellow-100" : "bg-red-100"
           )}>
             <div className={cn(
               "w-3 h-3 rounded-full",
-              profile.status === "Active" ? "bg-green-500" : "bg-red-500"
+              profile.status === "Active" ? "bg-green-500" : profile.status === "New" ? "bg-yellow-500" : "bg-red-500"
             )} />
           </div>
         </CardContent>
@@ -87,43 +120,56 @@ export const HomePage = () => {
           <GraduationCap className="text-indigo-600" size={24} />
           <h2 className="text-2xl font-bold text-slate-900">Your Teachers</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {profile.main_teacher && (
-            <Card className="border-slate-100 shadow-sm">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold">
-                  {profile.main_teacher.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-bold text-slate-900">{profile.main_teacher}</p>
-                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Main Teacher</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          {profile.assistant_teacher && (
-            <Card className="border-slate-100 shadow-sm">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold">
-                  {profile.assistant_teacher.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-bold text-slate-900">{profile.assistant_teacher}</p>
-                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Assistant Teacher</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        {!profile.main_teacher && !profile.assistant_teacher ? (
+          <Card className="border-slate-100 shadow-sm">
+            <CardContent className="p-6">
+              <p className="text-slate-400 italic text-center py-4">
+                No teachers assigned yet.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {profile.main_teacher && (
+              <Card className="border-slate-100 shadow-sm">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold">
+                    {profile.main_teacher.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900">{profile.main_teacher}</p>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Main Teacher</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {profile.assistant_teacher && (
+              <Card className="border-slate-100 shadow-sm">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold">
+                    {profile.assistant_teacher.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900">{profile.assistant_teacher}</p>
+                    <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Assistant Teacher</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Video Lessons */}
-      <Button className="w-full bg-indigo-600 hover:bg-indigo-700 h-16 rounded-2xl text-lg font-bold shadow-md">
+      {/* Video Lessons — open vroom join page with student id/name prefilled */}
+      <Button
+        className="w-full bg-indigo-600 hover:bg-indigo-700 h-16 rounded-2xl text-lg font-bold shadow-md"
+        onClick={handleOpenVideoLessons}
+      >
         <ExternalLink className="mr-2" size={20} />
         Open Video Lessons
       </Button>
       <p className="text-slate-400 text-center text-sm">
-        Lessons will open on an external platform
+        Lessons will open on an external platform. Enter the lesson ID from your teacher to join.
       </p>
     </div>
   );

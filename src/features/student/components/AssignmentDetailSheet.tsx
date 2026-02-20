@@ -18,6 +18,15 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
+/** Format date as DD.MM.YYYY for due date display */
+const formatDueDate = (date: Date | string): string => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
 interface AssignmentDetailSheetProps {
   assignment: Assignment;
   responseContent: string;
@@ -113,7 +122,7 @@ export const AssignmentDetailSheet: React.FC<AssignmentDetailSheetProps> = ({
             </span>
           </div>
           <span className="text-slate-400 font-medium text-sm">
-            Due: {new Date(assignment.due_date).toLocaleDateString()}
+            Due: {formatDueDate(assignment.due_date)}
           </span>
         </div>
       </SheetHeader>

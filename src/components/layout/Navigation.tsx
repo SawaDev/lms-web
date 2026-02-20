@@ -1,10 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { Home, FileText, Trophy, User, LogOut } from "lucide-react";
-import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { Home, FileText, Trophy, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Sidebar = () => {
-  const logout = useAuthStore((state) => state.logout);
 
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
@@ -41,16 +39,6 @@ export const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
-
-      <div className="p-4 border-t border-slate-100">
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-medium text-red-500 hover:bg-red-50 transition-colors"
-        >
-          <LogOut size={20} />
-          Log Out
-        </button>
-      </div>
     </aside>
   );
 };
