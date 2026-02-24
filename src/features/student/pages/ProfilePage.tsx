@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useProfile, useStats, useAttendance, useUpdateAvatar } from "../hooks/useStudent";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,8 +10,14 @@ import { getUploadUrl, uploadFileToS3 } from "../api/student";
 import { toast } from "sonner";
 
 export const ProfilePage = () => {
+  const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
   const { data: profile, isLoading: isProfileLoading } = useProfile();
+
+  const handleLogout = () => {
+    queryClient.clear();
+    logout();
+  };
   const { data: stats, isLoading: isStatsLoading } = useStats();
   const { data: attendance } = useAttendance(10);
   const updateAvatarMutation = useUpdateAvatar();
@@ -203,7 +210,7 @@ export const ProfilePage = () => {
 
       <button
         type="button"
-        onClick={logout}
+        onClick={handleLogout}
         className="w-full flex flex-row items-center justify-center p-5 rounded-3xl bg-slate-100 hover:bg-slate-200 transition-colors"
       >
         <LogOut size={20} className="text-red-500" />

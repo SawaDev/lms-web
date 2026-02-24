@@ -63,17 +63,19 @@ export const LoginPage = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Your Phone</Label>
-              <Controller
+              <Controller<LoginFormValues>
                 control={control}
                 name="phone"
-                render={({ field: { onChange, value, ...field } }) => {
+                render={({ field }) => {
+                  const { onChange, value, ...fieldRest } = field;
+                  const valueStr = String(value ?? "");
                   // Extract digits from value (remove +998 prefix if present)
-                  const digits = cleanPhoneNumber(value).replace(/^998/, "");
+                  const digits = cleanPhoneNumber(valueStr).replace(/^998/, "");
                   const formatted = digits ? `+998 ${formatPhoneNumber(digits)}` : "+998 ";
                   
                   return (
                     <Input
-                      {...field}
+                      {...fieldRest}
                       id="phone"
                       placeholder="+998 (xx) xxx-xx-xx"
                       value={formatted}

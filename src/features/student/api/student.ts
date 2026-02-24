@@ -8,6 +8,7 @@ export interface StudentProfile {
   avatar_url: string | null;
   status: string;
   level: string | null;
+  group_id: number | null;
   group_name: string | null;
   main_teacher: string | null;
   assistant_teacher: string | null;
@@ -124,4 +125,28 @@ export const downloadFile = async (fileUrl: string, fileName: string): Promise<v
   document.body.appendChild(link);
   link.click();
   link.remove();
+};
+
+export interface ActiveLesson {
+  id: string;
+  groupId: string;
+  livekitRoomName: string;
+  status: string;
+  startedAt: string;
+}
+
+export interface JoinLessonResponse {
+  token: string;
+  livekitUrl: string;
+  lessonId: string;
+}
+
+export const getActiveLessons = async (): Promise<ActiveLesson[]> => {
+  const response = await apiClient.get<ActiveLesson[]>('/user/lessons/active');
+  return response.data;
+};
+
+export const joinOnlineLesson = async (lessonId: string): Promise<JoinLessonResponse> => {
+  const response = await apiClient.post<JoinLessonResponse>(`/user/lessons/${lessonId}/join`);
+  return response.data;
 };
