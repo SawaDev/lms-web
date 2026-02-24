@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import * as studentApi from "../api/student";
 
-const IS_ONLINE_LESSON_ENABLED = true;
+const IS_ONLINE_LESSON_ENABLED = false;
 
 const VROOM_APP_URL = (import.meta as any).env?.VITE_VROOM_APP_URL || "http://localhost:5173";
 
